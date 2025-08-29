@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: marketplace
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+
+  #version: '3.8'
+
+  #services:
+   # db:
+     # image: postgres:15
+      #environment:
+        #POSTGRES_USER: postgres
+        #POSTGRES_PASSWORD: postgres
+        #POSTGRES_DB: marketplace
+      #ports:
+        #- "5432:5432"
+      #volumes:
+        #- db_data:/var/lib/postgresql/data
+      #networks:
+       #- backend
+
+    #api:
+      #build:
+      # context: ./api
+      #ports:
+        #- "8000:8000"
+      #environment:
+        #- DATABASE_URL=postgresql://postgres:postgres@db:5432/marketplace
+      #depends_on:
+        #- db
+      #volumes:
+        #- ./api:/app
+      #networks:
+        #- backend
+
+  # Opsiyonel: React frontend
+    #frontend:
+      #build:
+        #context: ./frontend
+      #ports:
+        #- "3000:3000"
+      #stdin_open: true
+      #tty: true
+      #networks:
+        #- backend
+
+  #volumes:
+    #db_data:
+
+  #networks:
+    #backend:
