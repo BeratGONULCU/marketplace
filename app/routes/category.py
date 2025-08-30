@@ -1,17 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db import SessionLocal
+from app.db import SessionLocal,get_db
+
 from app.models.category import Categories
 from app.schemas.category import CategoryCreate,CategoryOut,CategoryUpdate
 
 router = APIRouter(prefix="/categories", tags=["categories"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # ADMİN KONTROLÜ GEREKİYOR. EKLENECEK.
 @router.post("/" ,response_model=CategoryOut)
