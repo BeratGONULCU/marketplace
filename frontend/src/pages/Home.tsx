@@ -26,7 +26,7 @@ interface Product {
   base_price: number | null;
   base_stock: number | null;
   is_published: boolean;
-  user_id : number;
+  user_id: number;
 }
 
 interface Color {
@@ -102,9 +102,16 @@ function Home() {
   );
 
   const filteredProducts = products.filter((p) => {
-    if (p.type === "STANDARD") return true;
+    // Filtre yoksa tüm ürünler gösterilsin
     if (!selectedColor && !selectedSize) return true;
-    return filteredVariantProductIds.has(p.id);
+
+    // Varyanted ürünleri filtreye göre göster
+    if (p.type === "VARIANTED") {
+      return filteredVariantProductIds.has(p.id);
+    }
+
+    // STANDARD ürünleri sadece filtre yoksa göster (yukarıda zaten kontrol ettik)
+    return false;
   });
 
   if (loading) return <p>Yükleniyor...</p>;
@@ -114,6 +121,47 @@ function Home() {
       {user ? (
         <>
           <h2>Hoş geldiniz, {user.email}!</h2>
+
+          <div style={{ position: "absolute", top: "1rem", right: "1rem" }}>
+            <button
+              onClick={() => {
+                if (user?.is_admin) {
+                  window.location.href = "/Create";
+                }
+                else{
+                  alert("bu kullanıcının erişim izni yok");
+                }
+              }}
+              style={{
+                backgroundColor: "#e74c3c",
+                color: "white",
+                border: "none",
+                padding: "0.5rem 1rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+                marginRight: "20px",
+              }}
+            >
+              Ekleme Sayfası
+            </button>
+
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+              }}
+              style={{
+                backgroundColor: "#e74c3c",
+                color: "white",
+                border: "none",
+                padding: "0.5rem 1rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Çıkış Yap
+            </button>
+          </div>
 
           {/* Filtre alanı */}
           <div style={{ marginBottom: "1rem" }}>

@@ -12,7 +12,7 @@ function Login() {
 
   if (!auth) return <div>Auth context mevcut değil</div>;
 
-  // ✅ Yönlendirme burada yapılmalı (render içinde değil!)
+  // Yönlendirme burada yapılmalı (render içinde değil!)
   useEffect(() => {
     if (auth.isAuthenticated) {
       navigate("/");
