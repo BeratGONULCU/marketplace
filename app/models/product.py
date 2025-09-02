@@ -31,9 +31,25 @@ class Product(Base):
         back_populates="products"
     )
 
-
     categories = relationship(
         "Categories", 
         secondary=product_categories, 
         back_populates="products"
     )
+
+    variants = relationship(
+        "ProductVariant", 
+        back_populates="product"
+    )
+
+    product_color_images = relationship(
+        "ProductColorImage", 
+        back_populates="product"
+    )
+
+    product_images = relationship(
+        "ProductImage", 
+        back_populates="product"
+    )
+
+

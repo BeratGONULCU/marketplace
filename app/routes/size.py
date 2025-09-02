@@ -1,21 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.db import SessionLocal
+from app.db import SessionLocal, get_db
+from app.dependencies import get_current_user
 from app.models.size import Size
+from app.models.user import User
 from app.schemas.size import SizeCreate,SizeOut,SizeUpdate
 
 router = APIRouter(prefix="/sizes" ,tags=["sizes"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally: 
-        db.close()
-
 #create admin kontrolü olacak 
 @router.post("/",response_model=SizeOut)
-def size_create(payload: SizeCreate, db: Session = Depends(get_db)):
+def size_create(payload: SizeCreate, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="kullanıcı yetkisi yok"
+        )
+
     new_size = Size(**payload.model_dump())
     db.add(new_size)
     db.commit()
@@ -36,7 +37,12 @@ def get_size_by_id(size_id: int, db: Session = Depends(get_db)):
     return size
 
 @router.delete("/{size_id}", response_model=SizeOut)
-def delete_size_by_id(size_id: int,db: Session = Depends(get_db)):
+def delete_size_by_id(size_id: int,db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="kullanıcı yetkisi yok"
+        )
     size = db.query(Size).filter(Size.id == size_id).first()
     if not size:
         raise HTTPException(status_code=404,detail="not found to delete with that id")
@@ -46,7 +52,13 @@ def delete_size_by_id(size_id: int,db: Session = Depends(get_db)):
 
 #UPDATE
 @router.put("/{size_id}", response_model=SizeOut)
-def update_size_by_id(size_id: int, payload: SizeUpdate, db: Session = Depends(get_db)):
+def update_size_by_id(size_id: int, payload: SizeUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="kullanıcı yetkisi yok"
+        )    
+    
     size = db.query(Size).filter(Size.id == size_id).first()
     if not size:
         raise HTTPException(status_code=404, detail="Size not found with that id")

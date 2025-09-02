@@ -1,8 +1,8 @@
 from sqlalchemy import BigInteger, ForeignKey, Integer, Numeric, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column,relationship
 from app.db import Base
 
-class Product_variant(Base):
+class ProductVariant(Base):
     __tablename__ = "product_variants"
 
     id: Mapped[int] = mapped_column(BigInteger,primary_key=True)
@@ -13,3 +13,7 @@ class Product_variant(Base):
     stock: Mapped[int] = mapped_column(Integer,nullable=False, default=0)
     barcode: Mapped[str] = mapped_column(Text,nullable=False,unique=True)
     sku: Mapped[str] = mapped_column(Text,nullable=False,unique=True)  # stok takip kodu
+
+    color = relationship("Color")
+    size = relationship("Size")
+    product = relationship("Product", back_populates="variants")
