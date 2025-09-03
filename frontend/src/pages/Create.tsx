@@ -40,7 +40,7 @@ interface Size {
   code: string;
 }
 
-function Home() {
+function Create() {
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [colors, setColors] = useState<Color[]>([]);
@@ -144,7 +144,7 @@ function Home() {
               <button style={btnStyle} onClick={() => { window.location.href = "/UserSetting"; alert("create açıldı")}}>Kullanıcı Ayarları</button>
               <button style={btnStyle} onClick={() => { window.location.href = "/ProductSetting"; }}>Ürün Ayarları</button>
               <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Varyant Ürün Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Beden Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/SizeSetting"; }}>Beden Ayarları</button>
             </div>
             <div
               style={{
@@ -154,7 +154,7 @@ function Home() {
               }}
             >
               <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Kategori Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Renk Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ColorSetting"; }}>Renk Ayarları</button>
               <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Ürün içi Resim Ayarları</button>
               <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Ürün Resim-renk Ayarları</button>
             </div>
@@ -167,4 +167,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Create;

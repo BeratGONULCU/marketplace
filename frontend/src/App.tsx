@@ -9,6 +9,8 @@ import Home from './pages/Home'
 import Create from './pages/Create'
 import UserSetting from './pages/UserSetting'
 import ProductSetting from './pages/ProductSetting'
+import SizeSetting from './pages/SizeSetting'
+import ColorSetting from './pages/ColorSetting'
 
 
 function App() {
@@ -22,6 +24,9 @@ function App() {
           <Route path="/create" element={<Create />} />
           <Route path="/usersetting" element={<UserSetting />} />
           <Route path="/ProductSetting" element={<ProductSetting />} />
+          <Route path="/SizeSetting" element={<SizeSetting />} />
+          <Route path="/ColorSetting" element={<ColorSetting />} />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

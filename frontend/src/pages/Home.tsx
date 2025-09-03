@@ -293,7 +293,23 @@ function Home() {
           )}
         </>
       ) : (
-        <h2>Giriş yapmadınız.</h2>
+        <><h2>Giriş yapmadınız.</h2><button
+            onClick={() => {
+                window.location.href = "/Login";
+            } }
+            style={{
+              backgroundColor: "#041e6bff",
+              color: "white",
+              border: "none",
+              padding: "0.5rem 1rem",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginRight: "20px",
+            }}
+          >
+            giriş yapmak için
+          </button></>
+
       )}
     </div>
   );
