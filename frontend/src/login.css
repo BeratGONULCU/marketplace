@@ -98,3 +98,7 @@ button:hover {
     display: flex;
     flex-wrap: wrap;
 }
+
+.green {
+    color: rgb(192, 206, 59);
+  }

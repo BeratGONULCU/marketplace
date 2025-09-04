@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../size.css";
+import "../main.css";
 import axios from "axios"; // HTTP istekleri için axios
 
 interface Color {

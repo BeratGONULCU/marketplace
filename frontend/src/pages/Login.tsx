@@ -75,6 +75,13 @@ function Login() {
           Giriş Yap
         </button>
       </form>
+
+      <div>
+        <p>
+          kullanıcı adı: <span className="green">ogonulcu@gmail.com</span> <br /> 
+          şifre: <span className="green">1234</span> <br /> 
+        </p>
+      </div>
     </div>
   );
 }

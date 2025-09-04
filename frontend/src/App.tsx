@@ -11,6 +11,8 @@ import UserSetting from './pages/UserSetting'
 import ProductSetting from './pages/ProductSetting'
 import SizeSetting from './pages/SizeSetting'
 import ColorSetting from './pages/ColorSetting'
+import CategorySetting from './pages/CategorySetting'
+import ProductVariantSetting from './pages/ProductVariantSetting'
 
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
           <Route path="/ProductSetting" element={<ProductSetting />} />
           <Route path="/SizeSetting" element={<SizeSetting />} />
           <Route path="/ColorSetting" element={<ColorSetting />} />
+          <Route path="/CategorySetting" element={<CategorySetting />} />
+          <Route path="/ProductVariantSetting" element={<ProductVariantSetting />} />
 
         </Routes>
       </BrowserRouter>

@@ -39,11 +39,11 @@ body {
     margin-top: 0.25em;
     color: #ffffff; 
 }
-
 form {
     width: 100%;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column; /* her input grubu alt alta */
+    gap: 20px; /* input grupları arasında boşluk */
 }
 
 label {
@@ -53,12 +53,14 @@ label {
 }
 
 input {
+    width: 100%; /* form içindeki tüm input aynı genişlikte */
     padding: 10px;
     border-radius: 5px;
     outline: none;
     border: 1px solid #d6d1d5;
     background-color: #f9f9f9; 
     color: #333;
+    box-sizing: border-box;
 }
 
 input::placeholder {
@@ -68,9 +70,9 @@ input::placeholder {
 }
 
 button {
-    min-width: 100%;
+    width: 100%; /* buton da aynı genişlikte */
     cursor: pointer;
-    margin-top: 0.5em;
+    margin-top: 1em; /* input ile buton arasında boşluk */
     padding: 0.938em;
     border: none;
     border-radius: 4px;
@@ -84,6 +86,7 @@ button:hover {
     color: #ffffff;
 }
 
+/* tüm input grupları aynı genişlikte olacak */
 .title,
 .type,
 .description,
@@ -91,15 +94,11 @@ button:hover {
 .base_stock,
 .code,
 .color,
-.hex {
+.hex,
+.category,
+.slug {
     display: flex;
     flex-direction: column;
+    width: 100%;   /* sabit genişlik */
     margin-bottom: 15px;
-    width: 100%;
-}
-
-.submit {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
 }

@@ -5,7 +5,7 @@ import axios from "axios"; // HTTP istekleri için axios
 interface Product {
   title: string;
   type: string;
-  description: string;
+  description: string | null;
   base_price: number | null; // numeric(12,2) için number | null
   base_stock: number | null; // integer veya numeric(12,2) için number | null
   is_published: boolean;
@@ -39,8 +39,19 @@ const App = () => {
   // FastAPI'dan user_id'yi al
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token bulunamadı!");
+        return;
+      }
+
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/users/me"); // FastAPI endpoint'i
+        const response = await axios.get("http://127.0.0.1:8000/api/users/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         const { user_id } = response.data;
         if (user_id) {
           setProduct((prev) => ({
@@ -52,10 +63,14 @@ const App = () => {
         console.error("Kullanıcı verisi alınamadı:", error);
       }
     };
-    fetchUser();
-  }, []); // Boş bağımlılık dizisi ile sadece bir kez çalışır
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    fetchUser();
+  }, []);
+  // Boş bağımlılık dizisi ile sadece bir kez çalışır
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setProduct((prev) => ({
       ...prev,
@@ -76,16 +91,17 @@ const App = () => {
     }
 
     const payload = {
-      email: user.email,
-      hashed_password: user.password, 
-      is_active: user.isActive,
-      is_admin: user.isAdmin,
-      role: user.isAdmin ? "admin" : "user",
+      type: product.type,
+      title: product.title,
+      description: product.description || null,
+      base_price: product.base_price || null,
+      base_stock: product.base_stock || null,
+      is_published: product.is_published,
     };
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/users/me",
+        "http://127.0.0.1:8000/api/products",
         payload,
         {
           headers: {
@@ -94,10 +110,10 @@ const App = () => {
           },
         }
       );
-
-      console.log("kullanıcı oluşturuldu:", response.data);
+      alert("ürün oluşturuldu: " + JSON.stringify(response.data));
     } catch (error) {
-      console.error("kullanıcı oluşturulamadı:", error);
+      alert("ürün oluşturulamadı: " + error);
+      console.log("GÖNDERİLEN VERİ", product);
     }
   };
 
@@ -120,15 +136,18 @@ const App = () => {
           </div>
 
           <div className="type">
-            <label htmlFor="type">ürün tipi</label>
-            <input
-              type="type"
+            <label htmlFor="type">Ürün Tipi</label>
+            <select
               name="type"
               id="type"
               value={product.type}
               onChange={handleChange}
-              placeholder="ürün tipini girin."
-            />
+              required
+            >
+              <option value="">Seçiniz</option>
+              <option value="STANDARD">STANDARD</option>
+              <option value="VARIANTED">VARIANTED</option>
+            </select>
           </div>
 
           <div className="description">
@@ -137,9 +156,9 @@ const App = () => {
               type="description"
               name="description"
               id="description"
-              value={product.description}
+              value={product.description !== null ? product.description : ""}
               onChange={handleChange}
-              placeholder="ürün açıklamasını girin."
+              placeholder="ürün açıklamasını girin. (boş kalabilir)"
             />
           </div>
 
@@ -148,12 +167,13 @@ const App = () => {
               ürün fiyat - (eğer variant ise boş bırak)
             </label>
             <input
-              type="base_price"
+              type="number"
+              step="0.01" // ondalıklı sayı girilmesini sağlar
               name="base_price"
               id="base_price"
               value={product.base_price !== null ? product.base_price : ""}
               onChange={handleChange}
-              placeholder="ürün fiyatını bilgisini girin. boş kalabilir"
+              placeholder="ürün fiyatını bilgisini girin"
             />
           </div>
 
@@ -167,7 +187,7 @@ const App = () => {
               id="base_stock"
               value={product.base_stock !== null ? product.base_stock : ""}
               onChange={handleChange}
-              placeholder="ürün stok bilgisini girin. boş kalabilir"
+              placeholder="ürün stok bilgisini girin."
             />
           </div>
 

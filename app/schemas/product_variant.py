@@ -13,6 +13,15 @@ class VariantCreate(BaseModel):
     sku: str
     barcode: str
 
+class VariantUpdate(BaseModel):
+    color_id: int
+    size_id: int
+    price: Decimal
+    stock: int
+    sku: str
+    barcode: str
+
+
 class VariantOut(BaseModel):
     id: int
     product_id: int

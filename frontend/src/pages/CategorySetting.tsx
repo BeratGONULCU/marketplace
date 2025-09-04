@@ -2,20 +2,22 @@ import React, { useEffect, useState } from "react";
 import "../main.css"
 import axios from "axios"; // HTTP istekleri için axios
 
-interface Size {
-  code: string;
+interface Category {
+  name: string;
+  slug: string;
 }
 
 const App = () => {
   const token = localStorage.getItem("token");
 
-  const [size, setSize] = useState<Size>({
-    code: "",
+  const [category, setCategory] = useState<Category>({
+    name: "",
+    slug: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSize({
-      ...size,
+    setCategory({
+      ...category,
       [e.target.name]: e.target.value, // input name değerine göre güncelle
     });
   };
@@ -28,12 +30,13 @@ const App = () => {
     }
 
     const payload = {
-      code: size.code,
+      name: category.name,
+      slug: category.slug,
     };
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/sizes",
+        "http://127.0.0.1:8000/api/categories",
         payload,
         {
           headers: {
@@ -43,10 +46,10 @@ const App = () => {
         }
       );
 
-      alert("beden oluşturuldu: " + JSON.stringify(response.data));
-      setSize({ code: "" });
+      alert("kategori oluşturuldu: " + JSON.stringify(response.data));
+      setCategory({ name: "", slug: "" });
     } catch (error) {
-      alert("beden oluşturulamadı: " + error);
+      alert("kategori oluşturulamadı: " + error);
     }
   };
 
@@ -55,15 +58,28 @@ const App = () => {
       <div className="form-wrapper">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="text">
-            <label htmlFor="text">beden kodu</label>
+            <label htmlFor="text">kategori adı</label>
             <input
               type="text"
-              name="code"
-              id="code"
-              value={size.code}
+              name="category"
+              id="category"
+              value={category.name}
               onChange={handleChange}
               required
-              placeholder="beden kodu"
+              placeholder="kategori adı"
+            />
+          </div>
+
+          <div className="text">
+            <label htmlFor="text">kategori slug kodu</label>
+            <input
+              type="text"
+              name="slug"
+              id="slug"
+              value={category.slug}
+              onChange={handleChange}
+              required
+              placeholder="örn: spor-ayakkabi"
             />
           </div>
 
