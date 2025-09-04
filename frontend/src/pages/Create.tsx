@@ -155,8 +155,8 @@ function Create() {
             >
               <button style={btnStyle} onClick={() => { window.location.href = "/CategorySetting"; }}>Kategori Ayarları</button>
               <button style={btnStyle} onClick={() => { window.location.href = "/ColorSetting"; }}>Renk Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Ürün içi Resim Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Ürün Resim-renk Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ImageSetting"; }}>Standart Ürün Resim Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ColorImageSetting"; }}>Varianted Ürün Resim Ayarları</button>
             </div>
           </div>
 

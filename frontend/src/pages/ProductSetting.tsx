@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from "react";
 import "../productSetting.css";
-import axios from "axios"; // HTTP istekleri için axios
+import axios from "axios";
 
 interface Product {
+  id?: number;
   title: string;
   type: string;
   description: string | null;
-  base_price: number | null; // numeric(12,2) için number | null
-  base_stock: number | null; // integer veya numeric(12,2) için number | null
+  base_price: number | null;
+  base_stock: number | null;
   is_published: boolean;
   created_at: Date | null;
   updated_at: Date | null;
-  user_id: number | null; // user_id için number | null
+  user_id: number | null;
 }
 
 const App = () => {
   const token = localStorage.getItem("token");
 
-  const [user, setUser] = useState({
-    email: "example@email.com",
-    password: "",
-    isAdmin: false,
-    isActive: true,
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 
   const [product, setProduct] = useState<Product>({
     title: "",
@@ -31,89 +28,141 @@ const App = () => {
     base_price: null,
     base_stock: null,
     is_published: true,
-    created_at: null, // eğer ürün ilk defa oluşturuluyorsa ? ekle : değiştirme
-    updated_at: null, // eğer ürün varsa ve güncellendiyse ? değiştir : null
-    user_id: null, // useAuth ile ya da session ile alıcaz.
+    created_at: null,
+    updated_at: null,
+    user_id: null,
   });
 
-  // FastAPI'dan user_id'yi al
+  // Kullanıcıdan user_id'yi al
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("Token bulunamadı!");
-        return;
-      }
-
+      if (!token) return;
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/users/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const { user_id } = response.data;
         if (user_id) {
-          setProduct((prev) => ({
-            ...prev,
-            user_id: user_id,
-          }));
+          setProduct((prev) => ({ ...prev, user_id }));
         }
       } catch (error) {
         console.error("Kullanıcı verisi alınamadı:", error);
       }
     };
-
     fetchUser();
-  }, []);
-  // Boş bağımlılık dizisi ile sadece bir kez çalışır
+  }, [token]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  // Mevcut ürünleri getir
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:8000/api/products", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(res.data);
+    } catch (error) {
+      console.error("Ürünler alınamadı:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Ürün seçimi yapılınca formu doldur
+  const handleProductSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = Number(e.target.value);
+    setSelectedProductId(id);
+    const selected = products.find((p) => p.id === id);
+    if (selected) setProduct(selected);
+  };
+
+  // Form değişikliği
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProduct((prev) => ({
       ...prev,
-      [name]:
-        name === "base_stock" || name === "base_price"
-          ? value === ""
-            ? null
-            : Number(value)
-          : value,
+      [name]: name === "base_stock" || name === "base_price"
+        ? value === "" ? null : Number(value)
+        : value,
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Ürün oluştur
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
-      console.error("Token bulunamadı!");
-      return;
-    }
+    if (!token) return;
 
-    const payload = {
-      type: product.type,
-      title: product.title,
-      description: product.description || null,
-      base_price: product.base_price || null,
-      base_stock: product.base_stock || null,
-      is_published: product.is_published,
-    };
+    const payload = { ...product };
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/products",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // localStorage'dan al
-          },
-        }
-      );
-      alert("ürün oluşturuldu: " + JSON.stringify(response.data));
+      const response = await axios.post("http://127.0.0.1:8000/api/products", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      alert("Ürün oluşturuldu");
+      setProduct({
+        title: "",
+        type: "",
+        description: "",
+        base_price: null,
+        base_stock: null,
+        is_published: true,
+        created_at: null,
+        updated_at: null,
+        user_id: product.user_id,
+      });
+      fetchProducts();
     } catch (error) {
-      alert("ürün oluşturulamadı: " + error);
-      console.log("GÖNDERİLEN VERİ", product);
+      alert("Oluşturma başarısız.");
+    }
+  };
+
+  // Ürün güncelle
+  const handleUpdate = async () => {
+    if (!token || !selectedProductId) return;
+
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/products/${selectedProductId}`, product, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      alert("Ürün güncellendi.");
+      fetchProducts();
+    } catch (error) {
+      alert("Güncelleme başarısız.");
+    }
+  };
+
+  // Ürün sil
+  const handleDelete = async () => {
+    if (!token || !selectedProductId) return;
+    const confirmDelete = window.confirm("Bu ürünü silmek istediğinize emin misiniz?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/products/${selectedProductId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Ürün silindi.");
+      setProduct({
+        title: "",
+        type: "",
+        description: "",
+        base_price: null,
+        base_stock: null,
+        is_published: true,
+        created_at: null,
+        updated_at: null,
+        user_id: product.user_id,
+      });
+      setSelectedProductId(null);
+      fetchProducts();
+    } catch (error) {
+      alert("Silme başarısız.");
     }
   };
 
@@ -121,13 +170,21 @@ const App = () => {
     <div className="wrapper">
       <div className="form-wrapper">
         <h2>Ürün Ayarları</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+        <label>Ürün Seç</label>
+        <select onChange={handleProductSelect} value={selectedProductId ?? ""}>
+          <option value="">Yeni Ürün</option>
+          {products.map((p) => (
+            <option key={p.id} value={p.id}>{p.title}</option>
+          ))}
+        </select>
+
+        <form onSubmit={handleCreate} className="space-y-6">
           <div className="title">
             <label htmlFor="title">ürün adı</label>
             <input
-              type="title"
+              type="text"
               name="title"
-              id="title"
               value={product.title}
               onChange={handleChange}
               required
@@ -137,13 +194,7 @@ const App = () => {
 
           <div className="type">
             <label htmlFor="type">Ürün Tipi</label>
-            <select
-              name="type"
-              id="type"
-              value={product.type}
-              onChange={handleChange}
-              required
-            >
+            <select name="type" value={product.type} onChange={handleChange} required>
               <option value="">Seçiniz</option>
               <option value="STANDARD">STANDARD</option>
               <option value="VARIANTED">VARIANTED</option>
@@ -153,46 +204,47 @@ const App = () => {
           <div className="description">
             <label htmlFor="description">açıklama</label>
             <input
-              type="description"
+              type="text"
               name="description"
-              id="description"
-              value={product.description !== null ? product.description : ""}
+              value={product.description || ""}
               onChange={handleChange}
-              placeholder="ürün açıklamasını girin. (boş kalabilir)"
+              placeholder="ürün açıklaması"
             />
           </div>
 
           <div className="base_price">
-            <label htmlFor="base_price">
-              ürün fiyat - (eğer variant ise boş bırak)
-            </label>
+            <label>ürün fiyat</label>
             <input
               type="number"
-              step="0.01" // ondalıklı sayı girilmesini sağlar
+              step="0.01"
               name="base_price"
-              id="base_price"
-              value={product.base_price !== null ? product.base_price : ""}
+              value={product.base_price ?? ""}
               onChange={handleChange}
-              placeholder="ürün fiyatını bilgisini girin"
+              placeholder="örn: 99.90"
             />
           </div>
 
           <div className="base_stock">
-            <label htmlFor="base_stock">
-              ürün stok - (eğer variant ise boş bırak)
-            </label>
+            <label>ürün stok</label>
             <input
-              type="base_stock"
+              type="number"
               name="base_stock"
-              id="base_stock"
-              value={product.base_stock !== null ? product.base_stock : ""}
+              value={product.base_stock ?? ""}
               onChange={handleChange}
-              placeholder="ürün stok bilgisini girin."
+              placeholder="örn: 100"
             />
           </div>
 
-          <div className="submit">
-            <button type="submit">Ayarları Kaydet</button>
+          <div className="submit" style={{ display: "flex", gap: "1rem" }}>
+            <button type="submit">Yeni Oluştur</button>
+            {selectedProductId && (
+              <>
+                <button type="button" onClick={handleUpdate}>Güncelle</button>
+                <button type="button" onClick={handleDelete} style={{ backgroundColor: "#e74c3c", color: "#fff" }}>
+                  Sil
+                </button>
+              </>
+            )}
           </div>
         </form>
       </div>
