@@ -40,7 +40,7 @@ interface Size {
   code: string;
 }
 
-function Home() {
+function Create() {
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [colors, setColors] = useState<Color[]>([]);
@@ -141,10 +141,10 @@ function Home() {
                 marginBottom: "0.5rem",
               }}
             >
-              <button style={btnStyle} onClick={() => { window.location.href = "/UserSetting"; alert("create açıldı")}}>Kullanıcı Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/UserSetting";}}>Kullanıcı Ayarları</button>
               <button style={btnStyle} onClick={() => { window.location.href = "/ProductSetting"; }}>Ürün Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Varyant Ürün Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Beden Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ProductVariantSetting"; }}>Varyant Ürün Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/SizeSetting"; }}>Beden Ayarları</button>
             </div>
             <div
               style={{
@@ -153,11 +153,15 @@ function Home() {
                 gap: "0.5rem",
               }}
             >
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Kategori Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Renk Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Ürün içi Resim Ayarları</button>
-              <button style={btnStyle} onClick={() => { window.location.href = ""; }}>Ürün Resim-renk Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/CategorySetting"; }}>Kategori Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ColorSetting"; }}>Renk Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ImageSetting"; }}>Standart Ürün Resim Ayarları</button>
+              <button style={btnStyle} onClick={() => { window.location.href = "/ColorImageSetting"; }}>Varianted Ürün Resim Ayarları</button>
             </div>
+          </div>
+
+          <div>
+            <p> not: variant ürün eklemek istenirse önce ürün ayarlarından fiyat ve stok 0 olacak şekilde ürün girişi sağlaması gerekiyor. </p>
           </div>
         </>
       ) : (
@@ -167,4 +171,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Create;

@@ -12,7 +12,7 @@ class ProductVariant(Base):
     price: Mapped[float] = mapped_column(Numeric(12, 2),nullable=False)
     stock: Mapped[int] = mapped_column(Integer,nullable=False, default=0)
     barcode: Mapped[str] = mapped_column(Text,nullable=False,unique=True)
-    sku: Mapped[str] = mapped_column(Text,nullable=False,unique=True)  # stok takip kodu
+    sku: Mapped[str] = mapped_column(Text,nullable=False,unique=False)  # stok takip kodu -- sku kolonu unique = false olarak değiştirildi
 
     color = relationship("Color")
     size = relationship("Size")

@@ -7,3 +7,4 @@ from .product_categories import product_categories
 from .user import User
 from .product_color_image import ProductColorImage
 from .product_image import ProductImage
+from .combanedImage import ProductCombinedImage

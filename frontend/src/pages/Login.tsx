@@ -1,6 +1,8 @@
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import "../login.css";
+
 
 function Login() {
   const auth = useContext(AuthContext);
@@ -73,6 +75,13 @@ function Login() {
           Giriş Yap
         </button>
       </form>
+
+      <div>
+        <p>
+          kullanıcı adı: <span className="green">ogonulcu@gmail.com</span> <br /> 
+          şifre: <span className="green">1234</span> <br /> 
+        </p>
+      </div>
     </div>
   );
 }

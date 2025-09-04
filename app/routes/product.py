@@ -8,7 +8,7 @@ from app.models.product_variant import ProductVariant
 from app.models.user import User
 from app.schemas.product import ProductCreate,ProductOut
 from app.dependencies import get_current_user
-from app.schemas.product_variant import VariantCreate, VariantOut
+from app.schemas.product_variant import VariantCreate, VariantOut, VariantUpdate
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -143,3 +143,30 @@ def get_all_variants(db: Session = Depends(get_db)):
         .all()
     )
     return variants
+
+#UPDATE
+@router.put("/products/variants/{variant_id}", response_model=VariantOut)
+def update_variant(
+    variant_id: int,
+    payload: VariantCreate,  # veya ayrı bir VariantUpdate şeması
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Yetkisiz")
+
+    variant = db.query(ProductVariant).filter(ProductVariant.id == variant_id).first()
+    if not variant:
+        raise HTTPException(status_code=404, detail="Varyant bulunamadı")
+
+    variant.color_id = payload.color_id
+    variant.size_id = payload.size_id
+    variant.price = payload.price
+    variant.stock = payload.stock
+    variant.sku = payload.sku
+    variant.barcode = payload.barcode
+
+    db.commit()
+    db.refresh(variant)
+    return variant
+
