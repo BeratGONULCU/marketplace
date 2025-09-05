@@ -21,6 +21,8 @@ class VariantUpdate(BaseModel):
     sku: str
     barcode: str
 
+    
+
 
 class VariantOut(BaseModel):
     id: int

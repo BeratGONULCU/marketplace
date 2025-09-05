@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "../colorImage.css";
 
 interface Product {
   id: number;
@@ -163,7 +164,7 @@ const ProductColorImageUploader = () => {
     <div className="wrapper">
       {/* Sol: Ekleme */}
       <div className="form-wrapper">
-        <h2>Varyantlı Ürün Görseli Ekle</h2>
+        <h2 style={{ color: "#2c3e50" }}>Varyantlı Ürün Görseli Ekle</h2>
         <form onSubmit={handleSubmit}>
           <label>Ürün Seç</label>
           <select onChange={handleProductChange} value={selectedProductId ?? ""} required>
@@ -203,9 +204,8 @@ const ProductColorImageUploader = () => {
 
             <label>Sıralama</label>
             <input type="number" name="sort" value={existingImage.sort} onChange={handleEditChange} />
-
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-              <button type="button" onClick={handleUpdate}>Güncelle</button>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
+              <button  type="button" onClick={handleUpdate}>Güncelle</button>
               <button type="button" onClick={handleDelete} style={{ backgroundColor: "#e74c3c", color: "#fff" }}>
                 Sil
               </button>

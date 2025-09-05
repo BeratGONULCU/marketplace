@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "../main.css";
 
 interface Product {
   id: number;
@@ -236,7 +237,7 @@ const ProductImageUploader = () => {
                 onChange={handleEditChange}
               />
 
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
                 <button type="button" onClick={handleUpdate}>
                   Güncelle
                 </button>

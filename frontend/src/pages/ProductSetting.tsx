@@ -19,7 +19,9 @@ const App = () => {
   const token = localStorage.getItem("token");
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
 
   const [product, setProduct] = useState<Product>({
     title: "",
@@ -77,13 +79,18 @@ const App = () => {
   };
 
   // Form değişikliği
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setProduct((prev) => ({
       ...prev,
-      [name]: name === "base_stock" || name === "base_price"
-        ? value === "" ? null : Number(value)
-        : value,
+      [name]:
+        name === "base_stock" || name === "base_price"
+          ? value === ""
+            ? null
+            : Number(value)
+          : value,
     }));
   };
 
@@ -95,12 +102,16 @@ const App = () => {
     const payload = { ...product };
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/products", payload, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/products",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert("Ürün oluşturuldu");
       setProduct({
         title: "",
@@ -123,16 +134,30 @@ const App = () => {
   const handleUpdate = async () => {
     if (!token || !selectedProductId) return;
 
+    const payload = {
+      title: product.title,
+      type: product.type,
+      description: product.description,
+      base_price: product.base_price,
+      base_stock: product.base_stock,
+      is_published: product.is_published,
+    };
+
     try {
-      await axios.put(`http://127.0.0.1:8000/api/products/${selectedProductId}`, product, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(
+        `http://127.0.0.1:8000/api/products/${selectedProductId}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert("Ürün güncellendi.");
       fetchProducts();
     } catch (error) {
+      console.error("Güncelleme hatası:", error);
       alert("Güncelleme başarısız.");
     }
   };
@@ -140,13 +165,18 @@ const App = () => {
   // Ürün sil
   const handleDelete = async () => {
     if (!token || !selectedProductId) return;
-    const confirmDelete = window.confirm("Bu ürünü silmek istediğinize emin misiniz?");
+    const confirmDelete = window.confirm(
+      "Bu ürünü silmek istediğinize emin misiniz?"
+    );
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/products/${selectedProductId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `http://127.0.0.1:8000/api/products/${selectedProductId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       alert("Ürün silindi.");
       setProduct({
         title: "",
@@ -175,7 +205,9 @@ const App = () => {
         <select onChange={handleProductSelect} value={selectedProductId ?? ""}>
           <option value="">Yeni Ürün</option>
           {products.map((p) => (
-            <option key={p.id} value={p.id}>{p.title}</option>
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
           ))}
         </select>
 
@@ -194,7 +226,12 @@ const App = () => {
 
           <div className="type">
             <label htmlFor="type">Ürün Tipi</label>
-            <select name="type" value={product.type} onChange={handleChange} required>
+            <select
+              name="type"
+              value={product.type}
+              onChange={handleChange}
+              required
+            >
               <option value="">Seçiniz</option>
               <option value="STANDARD">STANDARD</option>
               <option value="VARIANTED">VARIANTED</option>
@@ -235,12 +272,52 @@ const App = () => {
             />
           </div>
 
-          <div className="submit" style={{ display: "flex", gap: "1rem" }}>
-            <button type="submit">Yeni Oluştur</button>
+          <div
+            className="submit"
+            style={{
+              display: "flex",
+              flexDirection: "row", // ➜ yan yana diz
+              justifyContent: "center", // ➜ ortala
+              alignItems: "center",
+              gap: "1rem", // ➜ butonlar arası boşluk
+              marginTop: "1rem",
+            }}
+          >
+            <button
+              type="submit"
+              style={{
+                flex: "1",
+                minWidth: "100px",
+                padding: "0.5rem",
+              }}
+            >
+              Yeni Oluştur
+            </button>
+
             {selectedProductId && (
               <>
-                <button type="button" onClick={handleUpdate}>Güncelle</button>
-                <button type="button" onClick={handleDelete} style={{ backgroundColor: "#e74c3c", color: "#fff" }}>
+                <button
+                  type="button"
+                  onClick={handleUpdate}
+                  style={{
+                    flex: "1",
+                    minWidth: "100px",
+                    padding: "0.5rem",
+                  }}
+                >
+                  Güncelle
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  style={{
+                    flex: "1",
+                    minWidth: "100px",
+                    padding: "0.5rem",
+                    backgroundColor: "#e74c3c",
+                    color: "#fff",
+                  }}
+                >
                   Sil
                 </button>
               </>

@@ -16,6 +16,12 @@ class UserOut(UserCreate):
     class Config:
         orm_mode:True
 
+class UserUpdate(BaseModel):
+    email: str
+    is_active: bool
+    is_admin: bool
+    role: str
+
 # Login için kullanılan form
 class LoginSchema(BaseModel):
     email: str
