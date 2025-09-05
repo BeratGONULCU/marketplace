@@ -1,59 +1,62 @@
 import React, { useEffect, useState } from "react";
 import "../userSetting.css";
 import axios from "axios";
+import bcrypt from "bcryptjs";
+
+interface User {
+  id: number | null;
+  email: string;
+  password: string;
+  isAdmin: boolean;
+  isActive: boolean;
+  role: string;
+}
 
 const App = () => {
   const token = localStorage.getItem("token");
 
-  const [user, setUser] = useState({
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
+  const [user, setUser] = useState<User>({
     id: null,
-    email: "example@email.com",
+    email: "",
     password: "",
     isAdmin: false,
     isActive: true,
     role: "",
   });
 
-  // FastAPI'dan data al
-  /*useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const payload = {
-          email: user.email,
-          password: user.password,
-          is_active: user.isActive,
-          is_admin: user.isAdmin,
-          role: user.role,
-        };
+  const hashedPassword = bcrypt.hashSync(user.password, 10);
 
-        const response = await axios.post(
-          "http://127.0.0.1:8000/api/users/register",
-          payload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // localStorage'dan al
-            },
-          }
-        );
-        const { data } = response.data;
+  // Kullanıcıları çek
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:8000/api/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsers(res.data);
+      console.log("Gelen kullanıcılar:", users);
+    } catch (err) {
+      console.error("Kullanıcılar alınamadı:", err);
+    }
+  };
 
-        //setUser({
-        //id : data.user_id,
-        //email: data.email,
-        //password: "",
-        //isAdmin: data.is_admin,
-        //isActive: data.is_active,
-        //role: data.role,
-        //});
-      } catch (error) {
-        console.error("Kullanıcı verisi alınamadı:", error);
-      }
-    };
-    fetchUser();
-  }, []); // Boş bağımlılık dizisi ile sadece bir kez çalışır
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  */
+  const handleUserSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const uid = Number(e.target.value);
+    setSelectedUserId(uid);
+    const selected = users.find((u) => u.id === uid);
+    if (selected) {
+      setUser({
+        ...selected,
+        password: "", // şifre güvenlik sebebiyle gösterilmez
+      });
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -63,36 +66,104 @@ const App = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
-      console.error("Token bulunamadı!");
-      return;
-    }
+    if (!token) return;
+
+    const hashedPassword = bcrypt.hashSync(user.password, 10); // 🔁 burada hashle
 
     const payload = {
       email: user.email,
-      hashed_password: user.password, 
+      hashed_password: user.password || "", // boş bile olsa tanımlı olmalı
+      role: user.role,
+      is_active: user.isActive,
+      is_admin: user.isAdmin,
+    };
+
+    try {
+      await axios.post("http://127.0.0.1:8000/api/users/register", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert("Kullanıcı oluşturuldu.");
+      setUser({
+        id: null,
+        email: "",
+        password: "",
+        isAdmin: false,
+        isActive: true,
+        role: "",
+      });
+      setSelectedUserId(null);
+      fetchUsers();
+    } catch (error) {
+      console.error("Kullanıcı oluşturulamadı:", error);
+      
+
+      alert("Oluşturma hatası");
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!token || !selectedUserId) return;
+
+    const payload: any = {
+      email: user.email,
       is_active: user.isActive,
       is_admin: user.isAdmin,
       role: user.isAdmin ? "admin" : "user",
     };
 
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/users/register",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // localStorage'dan al
-          },
-        }
-      );
+    console.log(payload);
 
-      console.log("kullanıcı oluşturuldu:", response.data);
+    if (user.password.trim() !== "") {
+      payload.hashed_password = user.password;
+    }
+
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/users/${user.id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      alert("Kullanıcı güncellendi.");
+      fetchUsers();
     } catch (error) {
-      console.error("kullanıcı oluşturulamadı:", error);
+      console.error("Kullanıcı güncellenemedi:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!token || !selectedUserId) return;
+
+    const confirmDelete = window.confirm(
+      "Bu kullanıcıyı silmek istediğinize emin misiniz?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/users/${selectedUserId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert("Kullanıcı silindi.");
+      setUser({
+        id: null,
+        email: "",
+        password: "",
+        isAdmin: false,
+        isActive: true,
+        role: "",
+      });
+      setSelectedUserId(null);
+      fetchUsers();
+    } catch (error) {
+      console.error("Kullanıcı silinemedi:", error);
     }
   };
 
@@ -100,13 +171,23 @@ const App = () => {
     <div className="wrapper">
       <div className="form-wrapper">
         <h2>Kullanıcı Ayarları</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+        <label>Kullanıcı Seç</label>
+        <select onChange={handleUserSelect} value={selectedUserId ?? ""}>
+          <option value="">Yeni Kullanıcı</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id ?? ""}>
+              {u.email}
+            </option>
+          ))}
+        </select>
+
+        <form onSubmit={handleCreate} className="space-y-6">
           <div className="username">
             <label htmlFor="email">E-posta</label>
             <input
               type="email"
               name="email"
-              id="email"
               value={user.email}
               onChange={handleChange}
               required
@@ -119,10 +200,9 @@ const App = () => {
             <input
               type="password"
               name="password"
-              id="password"
               value={user.password}
               onChange={handleChange}
-              placeholder="Yeni şifrenizi girin (isteğe bağlı)"
+              placeholder="Yeni şifre girin (isteğe bağlı)"
             />
           </div>
 
@@ -153,8 +233,22 @@ const App = () => {
             </div>
           </div>
 
-          <div className="submit">
-            <button type="submit">Ayarları Kaydet</button>
+          <div className="submit" style={{ display: "flex", gap: "1rem" }}>
+            <button type="submit">Yeni Oluştur</button>
+            {selectedUserId && (
+              <>
+                <button type="button" onClick={handleUpdate}>
+                  Güncelle
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  style={{ backgroundColor: "#e74c3c", color: "#fff" }}
+                >
+                  Sil
+                </button>
+              </>
+            )}
           </div>
         </form>
       </div>
@@ -163,6 +257,3 @@ const App = () => {
 };
 
 export default App;
-function SHA256(password: string) {
-  throw new Error("Function not implemented.");
-}

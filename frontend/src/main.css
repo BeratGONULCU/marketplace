@@ -81,6 +81,13 @@ button {
     font-weight: 500;
 }
 
+.form-wrapper h2,
+.form-wrapper label,
+.form-wrapper p {
+  color: #2c3e50; /* veya başka bir koyu renk (#000 da olur) */
+}
+
+
 button:hover {
     background-color: #45a049;
     color: #ffffff;

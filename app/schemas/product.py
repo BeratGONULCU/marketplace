@@ -26,5 +26,15 @@ class ProductOut(BaseModel):
     categories: List[CategoryOut]
     variants: Optional[List["VariantOut"]] = []
 
+
+class ProductUpdate(BaseModel):
+    title: Optional[str]
+    description: Optional[str]
+    type: Optional[str]  # "STANDARD" veya "VARIANTED"
+    base_price: Optional[float]
+    base_stock: Optional[int]
+    is_published: Optional[bool]
+
+    
     class Config:
         orm_mode: True

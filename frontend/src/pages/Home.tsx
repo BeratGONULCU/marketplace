@@ -132,10 +132,7 @@ function Home() {
         );
         setProductImageMap(stdMap);
 
-        const colorMapTemp: Record<
-          string,
-          { url: string; sort: number }
-        > = {};
+        const colorMapTemp: Record<string, { url: string; sort: number }> = {};
         colorRes.data.forEach((img: ProductColorImage) => {
           const key = `${img.product_id}_${img.color_id}`;
           console.log("GÖRSEL BULUNDU ->", key, img.url);
@@ -285,8 +282,10 @@ function Home() {
               marginBottom: "50px",
             }}
           >
+            
             {filteredProducts.map((p) => {
               const productVariants = variants.filter(
+                
                 (v) =>
                   v.product_id === p.id &&
                   (!selectedColor || v.color.id === selectedColor) &&
@@ -301,6 +300,8 @@ function Home() {
                 // Filtrelenmiş varyantlara bak, ilk bulduğun görseli al
                 const firstImageVariant = productVariants.find((v) => {
                   const key = `${p.id}_${v.color.id}`;
+                  console.log("Aranan KEY:", `${p.id}_${v.color.id}`);
+                  console.log("Haritada var mı?", productColorImageMap.hasOwnProperty(`${p.id}_${v.color.id}`));
                   return productColorImageMap[key]; // görsel varsa true
                 });
 
@@ -309,7 +310,10 @@ function Home() {
                   imageUrl = productColorImageMap[key];
                   console.log("VARYANT RESMİ BULUNDU:", key, "->", imageUrl);
                 }
-
+console.log("Tüm gelen varyantlar:");
+productVariants.forEach((v) => {
+  console.log(`Varyant ID: ${v.id}, product_id: ${v.product_id}, color_id: ${v.color.id}`);
+});
                 productVariants.forEach((v) => {
                   const key = `${p.id}_${v.color.id}`;
                   if (!productColorImageMap[key]) {
@@ -384,14 +388,10 @@ function Home() {
                     </p>
                   ) : productVariants.length > 0 ? (
                     productVariants.map((v) => {
-                      const key = `${p.id}_${v.color.id}`;
-                      console.log("Kontrol edilen key:", key);
-                      console.log("productColorImageMap keys:", Object.keys(productColorImageMap));
-                      console.log("productImageMap keys:", Object.keys(productImageMap));
-                      
+                      const key = `${v.product_id}_${v.color.id}`;
                       const variantImageUrl =
                         productColorImageMap[key] ||
-                        productImageMap[p.id] ||
+                        productImageMap[v.product_id] ||
                         "https://via.placeholder.com/300x180?text=No+Image";
 
                       return (

@@ -4,9 +4,10 @@ from sqlalchemy.orm import Session,joinedload
 from app.db import SessionLocal, get_db
 from app.models.product import Product
 from app.models.category import Categories
+from app.models.product_image import ProductImage
 from app.models.product_variant import ProductVariant
 from app.models.user import User
-from app.schemas.product import ProductCreate,ProductOut
+from app.schemas.product import ProductCreate,ProductOut,ProductUpdate
 from app.dependencies import get_current_user
 from app.schemas.product_variant import VariantCreate, VariantOut, VariantUpdate
 
@@ -63,23 +64,61 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
 
 #DELETE product_by_id
 @router.delete("/{product_id}", response_model=ProductOut)
-def delete_product_by_id(product_id:int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_product_by_id(product_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="kullanıcı " \
-            " yetkisi yok"            
-            )
-    
+            detail="kullanıcı yetkisi yok"
+        )
+
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="silmek istediğin ürün bulunamadı.")
     
+    # İlişkili görselleri sil
+    db.query(ProductImage).filter(ProductImage.product_id == product_id).delete()
+
+    # ürünü sil
     db.delete(product)
     db.commit()
+
     return product
 
-#UPDATE product
+
+# UPDATE product
+@router.put("/{product_id}", response_model=ProductOut)
+def update_product(
+    product_id: int,
+    payload: ProductUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Yetkisiz")
+
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Ürün bulunamadı")
+
+    if payload.title is not None:
+        product.title = payload.title
+    if payload.description is not None:
+        product.description = payload.description
+    if payload.type is not None:
+        product.type = payload.type
+    if payload.base_price is not None:
+        product.base_price = payload.base_price
+    if payload.base_stock is not None:
+        product.base_stock = payload.base_stock
+    if payload.is_published is not None:
+        product.is_published = payload.is_published
+
+
+    db.commit()
+    db.refresh(product)
+    return product
+
+
 
 
 # VARIANTED ürünleri eklemek için
